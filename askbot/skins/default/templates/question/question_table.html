@@ -1,0 +1,67 @@
+<form id="fmanswer" action="{% url answer question.id %}" method="post">
+    {% if request.user.is_authenticated() %}
+        <p style="padding-left:3px">
+        {{ answer.email_notify }} 
+        <label for="question-subscribe-updates">
+        {% set email_feed_frequency = request.user.get_q_sel_email_feed_frequency() %}
+        {% if email_feed_frequency =='n' %}
+            {% trans %}Notify me once a day when there are any new answers{% endtrans %}
+        {% elif email_feed_frequency =='d' %}
+            {% trans %}Notify me once a day when there are any new answers{% endtrans %}
+        {% elif email_feed_frequency =='w' %}
+            {% trans %}Notify me weekly when there are any new answers{% endtrans %}
+        {% elif email_feed_frequency =='i' %}
+            {% trans %}Notify me immediately when there are any new answers{% endtrans %}
+        {% endif %}
+        </label>
+        {% trans profile_url=request.user.get_profile_url() %}You can always adjust frequency of email updates from your {{profile_url}}{% endtrans %}
+        </p>
+    {% else %}
+        <p style="padding-left:3px">
+            <input class="nomargin" type="checkbox" disabled="disabled" />
+            <label>{% trans %}once you sign in you will be able to subscribe for any updates here{% endtrans %}</label>
+        </p>
+    {% endif %}
+    <div style="clear:both">
+    </div>
+    {% if not question.closed %}
+        <div style="padding:10px 0 0 0;">
+            {% spaceless %}
+            <h2>
+                {% if answers %}
+                    {% trans %}Your answer{% endtrans %}
+                {% else %}
+                    {% trans %}Be the first one to answer this question!{% endtrans %}
+                {% endif %}
+            </h2>
+            {% endspaceless %}
+        </div>
+        {% if not request.user.is_authenticated() %}
+            <div class="message">{% trans %}you can answer anonymously and then login{% endtrans %}</div>
+        {% else %}
+            <p class="message">
+                {% if request.user==question.author  %}
+                    {% trans %}answer your own question only to give an answer{% endtrans %}
+                {% else %}
+                    {% trans %}please only give an answer, no discussions{% endtrans %}
+                {% endif %}
+            </p>
+        {% endif %}
+        {{ macros.edit_post(answer) }}
+        <input type="submit" 
+            {% if user.is_anonymous() %}
+                value="{% trans %}Login/Signup to Post Your Answer{% endtrans %}" 
+            {% else %}
+                {% if user == question.author %}
+                    value="{% trans %}Answer Your Own Question{% endtrans %}" 
+                {% else %}
+                    value="{% trans %}Answer the question{% endtrans %}" 
+                {% endif %}
+            {% endif %}
+            class="submit after-editor" style="float:left"/>
+            {% if settings.WIKI_ON %}
+                {{ macros.checkbox_in_div(answer.wiki) }}
+            {% endif %}
+    {% endif %}
+    </form>
+</div>

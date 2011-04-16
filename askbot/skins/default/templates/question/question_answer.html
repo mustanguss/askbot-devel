@@ -1,0 +1,122 @@
+        {% for answer in answers %}
+            <a name="{{ answer.id }}"></a>
+            <div id="answer-container-{{ answer.id }}" class="answer {% if answer.accepted %}accepted-answer{% endif %} {% if answer.author_id==question.author_id %} answered-by-owner{% endif %} {% if answer.deleted %}deleted{% endif %}">
+                <table style="width:100%;" class="answer-table">
+                    <tr>
+                        <td style="width:30px;vertical-align:top">
+                            <div class="vote-buttons">
+                                <img id="answer-img-upvote-{{ answer.id }}" class="answer-img-upvote" 
+                                    {% if user_answer_votes[answer.id] == 1 %}
+                                        src="{{"/images/vote-arrow-up-on.png"|media}}" 
+                                    {% else %}
+                                        src="{{"/images/vote-arrow-up.png"|media}}" 
+                                    {% endif %}
+                                    alt="{% trans %}i like this answer (click again to cancel){% endtrans %}"
+                                    title="{% trans %}i like this answer (click again to cancel){% endtrans %}"/>
+                                <div id="answer-vote-number-{{ answer.id }}" class="vote-number" title="{% trans %}current number of votes{% endtrans %}">
+                                    {{ answer.score }}
+                                </div>
+                                <img id="answer-img-downvote-{{ answer.id }}" class="answer-img-downvote" 
+                                    {% if user_answer_votes[answer.id] == -1 %}
+                                        src="{{"/images/vote-arrow-down-on.png"|media}}" 
+                                    {% else %}
+                                        src="{{"/images/vote-arrow-down.png"|media}}" 
+                                    {% endif %}
+                                    alt="{% trans %}i dont like this answer (click again to cancel){% endtrans %}"
+                                    title="{% trans %}i dont like this answer (click again to cancel){% endtrans %}" />
+                                {% if request.user == question.author %}
+                                <img id="answer-img-accept-{{ answer.id }}" class="answer-img-accept" 
+                                    {% if answer.accepted %}
+                                        src="{{"/images/vote-accepted-on.png"|media}}"
+                                    {% else %}
+                                        src="{{"/images/vote-accepted.png"|media}}" 
+                                    {% endif %}
+                                    alt="{% trans %}mark this answer as favorite (click again to undo){% endtrans %}"
+                                    title="{% trans %}mark this answer as favorite (click again to undo){% endtrans %}" />
+                                {% else %}
+                                    {% if answer.accepted %}
+                                    <img id="answer-img-accept-{{ answer.id }}" class="answer-img-accept" 
+                                        {% if answer.accepted %}
+                                            src="{{"/images/vote-accepted-on.png"|media}}"
+                                        {% else %}
+                                            src="{{"/images/vote-accepted.png"|media}}"
+                                        {% endif %}
+                                        alt="{% trans question_author=question.author.username %}{{question_author}} has selected this answer as correct{% endtrans %}"
+                                        title="{% trans questsion_author=question.author.username%}{{question_author}} has selected this answer as correct{% endtrans %}"
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="item-right">
+                                <div class="answer-body">
+                                    {{ answer.html }}
+                                </div>
+                                <div class="answer-controls post-controls">
+                                    {% set pipe=joiner('<span class="sep">|</span>') %}
+                                    <span class="linksopt">{{ pipe() }}
+                                        <a 
+                                            href="{{ answer.get_absolute_url() }}" 
+                                            title="{% trans %}answer permanent link{% endtrans %}">
+                                            {% trans %}permanent link{% endtrans %}
+                                        </a>
+                                    </span>
+                                    {% if request.user|can_edit_post(answer) %}{{ pipe() }}
+                                    <span class="action-link"><a href="{% url edit_answer answer.id %}">{% trans %}edit{% endtrans %}</a></span>
+                                    {% endif %}
+                                    {% if request.user|can_flag_offensive(answer) %}{{ pipe() }}
+                                    <span id="answer-offensive-flag-{{ answer.id }}" class="offensive-flag" 
+                                        title="{% trans %}report as offensive (i.e containing spam, advertising, malicious text, etc.){% endtrans %}">
+                                        <a>{% trans %}flag offensive{% endtrans %}</a>
+                                        {% if request.user|can_see_offensive_flags(answer) %}
+                                            <span class="darkred">{% if answer.offensive_flag_count > 0 %}({{ answer.offensive_flag_count }}){% endif %}</span>
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                    {% if request.user|can_delete_post(answer) %}{{ pipe() }}
+                                        {% spaceless %}
+                                        <span class="action-link">
+                                            <a id="answer-delete-link-{{answer.id}}">
+                                            {% if answer.deleted %}{% trans %}undelete{% endtrans %}{% else %}{% trans %}delete{% endtrans %}{% endif %}</a>
+                                        </span>
+                                        {% endspaceless %}
+                                    {% endif %}
+                                </div>
+                                <div class="post-update-info-container">
+                                        {{
+                                            macros.post_contributor_info(
+                                                answer,
+                                                "original_author",
+                                                answer.wiki,
+                                                settings.MIN_REP_TO_EDIT_WIKI
+                                            )
+                                        }}
+                                        {{ 
+                                            macros.post_contributor_info(
+                                                answer,
+                                                "last_updater",
+                                                answer.wiki,
+                                                settings.MIN_REP_TO_EDIT_WIKI
+                                            )
+                                        }}
+                                </div>
+                                {{
+                                    macros.post_comments_widget(
+                                            post = answer,
+                                            show_post = show_post,
+                                            show_comment = show_comment,
+                                            comment_order_number = comment_order_number,
+                                            user = request.user,
+                                            max_comments = settings.MAX_COMMENTS_TO_SHOW
+                                        )
+                                }}
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        {% endfor %}
+        <div class="paginator-container-left">
+            {{ macros.paginator(paginator_context) }}
+        </div><br/>
+    {% endif %}
