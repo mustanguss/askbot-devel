@@ -13,6 +13,7 @@
 
 {% block content %}
 <h1><a href="{{ question.get_absolute_url() }}">{{ question.get_question_title() }}</a></h1>
+
 {% include "question/question_table.html" %}
 {% include "question/question_answer.html" %}
 {% include "question/question_user_answer.html" %}
