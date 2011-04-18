@@ -1,3 +1,4 @@
+{% import "macros.html" as macros %}
 <form id="fmanswer" action="{% url answer question.id %}" method="post">
     {% if request.user.is_authenticated() %}
         <p style="padding-left:3px">
