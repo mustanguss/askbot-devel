@@ -230,7 +230,7 @@
             {{ macros.paginator(paginator_context) }}
         </div><br/>
     {% endif %}
-{% if request.user.is_authenticated() %}
+    {% if request.user.is_authenticated() %} 
         <p style="padding-left:3px">
         {{ answer.email_notify }} 
         <label for="question-subscribe-updates">
@@ -253,7 +253,7 @@
             <label>{% trans %}once you sign in you will be able to subscribe for any updates here{% endtrans %}</label>
         </p>
     {% endif %}
-{% include "question/answer_form.html" %}
+    {% include "question/answer_form.html" %}
 </div>
 {% endblock %}
 
